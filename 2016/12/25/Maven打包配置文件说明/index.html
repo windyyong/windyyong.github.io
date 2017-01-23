@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="windy"><title>Maven打包配置说明 | windy</title><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/4.2.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Maven打包配置说明</h1><a id="logo" href="/.">windy</a><p class="description">love at first sight</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Maven打包配置说明</h1><div class="post-meta">Dec 25, 2016<span> | </span><span class="category"><a href="/categories/Java构建工具/">Java构建工具</a></span><script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><a data-thread-key="2016/12/25/Maven打包配置文件说明/" href="/2016/12/25/Maven打包配置文件说明/#comments" class="ds-thread-count"></a><div class="post-content"><ul>
+<li><a href="#1">1 解决jar包的依赖关系</a> </li>
+<li><a href="#2">2 项目程序构建打包</a> <ul>
+<li><a href="#2.1">2.1 部署最基本命令</a> </li>
+<li><a href="#2.2">2.2 部署基本文件配置</a> </li>
+</ul>
+</li>
+<li><a href="#3">3 问题</a></li>
+</ul>
+<p></p><h2 id="1">1 解决jar包的依赖关系</h2><p></p>
+<ul>
+<li><p><strong>配置基本的dependency</strong>：可以去<a href="https://mvnrepository.com/搜索基本的依赖jar包配置，添加在pom.xml文件" target="_blank" rel="external">https://mvnrepository.com/搜索基本的依赖jar包配置，添加在pom.xml文件</a></p>
+</li>
+<li><p><strong>修改仓库</strong>:在maven的安装路径conf文件夹下，找到setting.xml，在<code>&lt;mirrors&gt;</code>节点添加</p>
+<pre><code>&lt;mirror&gt;
+    &lt;id&gt;alimaven&lt;/id&gt;
+    &lt;name&gt;aliyun maven&lt;/name&gt;
+    &lt;url&gt;http://maven.aliyun.com/nexus/content/groups/public/&lt;/url&gt;
+    &lt;mirrorOf&gt;central&lt;/mirrorOf&gt;
+&lt;/mirror&gt;
+</code></pre></li>
+</ul>
+<p>如本人路径为：F:\Program Files (x86)\apache-maven-3.3.9\conf</p>
+<p></p><h2 id="2">2 项目程序构建打包 </h2><p></p>
+<ul>
+<li>针对Tomcat容器，并且Tomcat设有后台管理账号，以下都针对测试而言</li>
+<li>标准maven项目结构，并且都是单项目模块</li>
+<li>部署的时候Tomcat必须处于启动状态</li>
+</ul>
+<p></p><h4 id="2.1">2.1 部署最基本命令</h4> <p></p>
+<ol>
+<li>去到项目的根路径  </li>
+<li>mvn clean（清除之前的构建文件）  </li>
+<li>mvn tomcat7:redeploy -Dmaven.test.skip=true（部署到本地/远程服务器）<blockquote>
+<p>其中-Dmaven.test.skip=true表示忽略maven项目结构下的所有测试类测试，默认的话会调用所有测试方法走一下流程（耗时），如果有错误则会报错不能通过部署</p>
+</blockquote>
+</li>
+</ol>
+<p></p><h4 id="2.2">2.2 部署基本文件配置</h4><br>在部署的过程中，有3个最基本的配置文件需要设置一下（文件超链接）：<br>Tomcat容器的：<a href="/attachment/Maven打包配置文件说明--tomcat-users.xml">tomcat-users.xml</a><br>Maven安装目录的：<a href="http://www.baidu.com" target="_blank" rel="external">setting.xml</a><br>部署项目的文件：<a href="http://www.baidu.com" target="_blank" rel="external">pom.xml</a><br><img src="http://fds" alt=""><p></p>
+<ol>
+<li><p>Tomcat容器的文件夹conf下的tomcat-user.xml，在<code>&lt;tomcat-users&gt;</code>节点下增加后台管理账号：  </p>
+<pre><code>&lt;!--增加角色--&gt;
+&lt;role rolename=&quot;admin-gui&quot;/&gt;
+&lt;role rolename=&quot;admin-script&quot;/&gt;
+&lt;role rolename=&quot;manager-gui&quot;/&gt;
+&lt;role rolename=&quot;manager-script&quot;/&gt;
+&lt;role rolename=&quot;manager-jmx&quot;/&gt;
+&lt;role rolename=&quot;manager-status&quot;/&gt;
+&lt;!--增加账号--&gt;    
+&lt;user username=&quot;admin&quot; password=&quot;123456&quot; roles=&quot;manager-gui,manager-script,manager-jmx,manager-status,admin-script,admin-gui&quot;/&gt;
+</code></pre></li>
+</ol>
+<ol>
+<li><p>配置Maven安装路径下conf文件夹下的setting.xml文件，在<code>&lt;servers&gt;</code>节点下增加Tomcat服务器基本配置 </p>
+<pre><code>&lt;server&gt;
+    &lt;id&gt;tomcat7&lt;/id&gt;&lt;!--服务器Id，随意填，后面和pom.xml文件统一就可以了--&gt;    
+    &lt;username&gt;admin&lt;/username&gt;&lt;!--Tomcat账号--&gt;
+    &lt;password&gt;123456&lt;/password&gt;&lt;!--Tomcat密码--&gt;
+&lt;/server&gt;
+</code></pre></li>
+<li><p>配置项目的pom.xml文件,在project节点内增加build节点</p>
+<pre><code>&lt;build&gt;
+    &lt;finalName&gt;cpappservice&lt;/finalName&gt;&lt;!-- 发布前执行时，生成cpappservice.war文件--&gt;
+    &lt;!-- 使用maven编译、运行、部署时用到的插件，如果通过IDE的tomcat启动，则不会用到--&gt;
+    &lt;directory&gt;target&lt;/directory&gt;&lt;!-- 这是打包的文件的路径。默认是该工程的根目录。 --&gt;
+    &lt;plugins&gt;
+        &lt;!-- 使用Tomcat插件 --&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.apache.tomcat.maven&lt;/groupId&gt;
+            &lt;artifactId&gt;tomcat7-maven-plugin&lt;/artifactId&gt;
+            &lt;version&gt;2.2&lt;/version&gt;
+            &lt;!--configuration节点的内容都可以省略不写，有默认值的--&gt;
+            &lt;configuration&gt;
+                &lt;path&gt;/cpappservice&lt;/path&gt;&lt;!-- 运行之后访问的路径 --&gt;
+                &lt;port&gt;12304&lt;/port&gt;&lt;!-- 运行之后访问端口 --&gt;
+                &lt;uriEncoding&gt;UTF8&lt;/uriEncoding&gt;&lt;!-- 编码 --&gt;
+                &lt;server&gt;tomcat7&lt;/server&gt;&lt;!-- 对应maven下的配置文件的setting.xml的server的id --&gt;
+                &lt;url&gt;http://128.128.128.128:12304/manager/text&lt;/url&gt;&lt;!-- 部署到服务器的地址,url为tomcat管理地址，不同的容器，域名和端口可能不同，注意url的最后必须加上/text 否则会出错--&gt;
+                &lt;!--配置远程tomcat的路径 begin--&gt;
+                &lt;username&gt;admin&lt;/username&gt;
+                &lt;password&gt;123456&lt;/password&gt;
+                &lt;!--配置远程tomcat的路径 end--&gt;
+            &lt;/configuration&gt;
+        &lt;/plugin&gt;
+        &lt;!-- mvn compile配置编译插件 --&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+            &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+            &lt;version&gt;3.1&lt;/version&gt;
+            &lt;configuration&gt;
+                &lt;source&gt;1.7&lt;/source&gt; &lt;!-- 源代码使用的开发版本 --&gt;
+                &lt;target&gt;1.7&lt;/target&gt; &lt;!-- 需要生成的目标class文件的编译版本 --&gt;
+                &lt;encoding&gt;UTF-8&lt;/encoding&gt;&lt;!-- 指定编码格式，否则在DOS下运行mvn compile命令时会出现莫名的错误，因为系统默认使用GBK编码 --&gt;
+            &lt;/configuration&gt;
+        &lt;/plugin&gt;
+        &lt;!-- 处理资源文件插件 --&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+            &lt;artifactId&gt;maven-resources-plugin&lt;/artifactId&gt;
+            &lt;version&gt;2.6&lt;/version&gt;
+            &lt;configuration&gt;
+                &lt;encoding&gt;UTF-8&lt;/encoding&gt;&lt;!-- 指定编码格式，否则在DOS下运行mvn命令时当发生文件资源copy时将使用系统默认使用GBK编码 --&gt;
+            &lt;/configuration&gt;
+        &lt;/plugin&gt;
+    &lt;/plugins&gt;
+&lt;/build&gt;
+</code></pre></li>
+<li><p>配置好上面3个配置文件后，就可以按2.1的基本部署命令去操作了</p>
+</li>
+</ol>
+<p>####3 问题</p>
+<ol>
+<li>有些具体细节不懂：上面的配置都操作过，标识了中文的整体都理解了，不过有关修改仓库的具体细节还待认证。</li>
+<li>因为目前spring框架都已经使用gradle了，所以个人觉得其实转向gradle会更符合趋势，没有必要花太多的精力去学maven了。</li>
+<li>如何构建仓库待研究</li>
+</ol>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://www.windyyong.com/2016/12/25/Maven打包配置文件说明/" data-id="ciy9qygj4000114ueygdzcyk9" class="article-share-link">分享到</a><div class="tags"><a href="/tags/Maven/">Maven</a></div><div class="post-nav"><a href="/2016/08/28/字符编码：一、Unicode与UTF-8的例子/" class="next">字符编码：一、Unicode与UTF-8的例子</a></div><div data-thread-key="2016/12/25/Maven打包配置文件说明/" data-title="Maven打包配置说明" data-url="http://www.windyyong.com/2016/12/25/Maven打包配置文件说明/" class="ds-share flat"><div class="ds-share-inline"><ul class="ds-share-icons-16"><li data-toggle="ds-share-icons-more"><a href="javascript:void(0);" class="ds-more">分享到：</a></li><li><a href="javascript:void(0);" data-service="weibo" class="ds-weibo">微博</a></li><li><a href="javascript:void(0);" data-service="qzone" class="ds-qzone">QQ空间</a></li><li><a href="javascript:void(0);" data-service="qqt" class="ds-qqt">腾讯微博</a></li><li><a href="javascript:void(0);" data-service="wechat" class="ds-wechat">微信</a></li></ul><div class="ds-share-icons-more"></div></div></div><div data-thread-key="2016/12/25/Maven打包配置文件说明/" data-title="Maven打包配置说明" data-url="http://www.windyyong.com/2016/12/25/Maven打包配置文件说明/" data-author-key="1" class="ds-thread"></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="search" name="word" maxlength="20" placeholder="Search"/><input type="hidden" name="si" value="http://www.windyyong.com"/><input name="tn" type="hidden" value="bds"/><input name="cl" type="hidden" value="3"/><input name="ct" type="hidden" value="2097152"/><input name="s" type="hidden" value="on"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Java基础/">Java基础</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java构建工具/">Java构建工具</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/字符编码/" style="font-size: 15px;">字符编码</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/Maven打包配置文件说明/">Maven打包配置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：一、Unicode与UTF-8的例子/">字符编码：一、Unicode与UTF-8的例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：二、认识字符集Charset/">字符编码：二、认识字符集Charset</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：三、了解编码方式Encoding/">字符编码：三、了解编码方式Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：四、Unicode与UTF-8/">字符编码：四、Unicode与UTF-8</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：TXT与编码/">字符编码：TXT与编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：Unicode的历史/">字符编码：Unicode的历史</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/18/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.windyyong.com" title="windy" target="_blank">windy</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">© <a href="/." rel="nofollow">windy.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> </a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="/css/jquery.fancybox.css?v=0.0.0"><script>var duoshuoQuery = {short_name:'windyyong'};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

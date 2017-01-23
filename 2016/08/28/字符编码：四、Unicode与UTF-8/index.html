@@ -1,0 +1,96 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="windy"><title>字符编码：四、Unicode与UTF-8 | windy</title><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/4.2.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">字符编码：四、Unicode与UTF-8</h1><a id="logo" href="/.">windy</a><p class="description">love at first sight</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">字符编码：四、Unicode与UTF-8</h1><div class="post-meta">Aug 28, 2016<span> | </span><span class="category"><a href="/categories/Java基础/">Java基础</a></span><script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><a data-thread-key="2016/08/28/字符编码：四、Unicode与UTF-8/" href="/2016/08/28/字符编码：四、Unicode与UTF-8/#comments" class="ds-thread-count"></a><div class="post-content"><ul>
+<li><a href="#1">一.Unicode</a> </li>
+<li><a href="#2">二.UTF-8编码规则</a> <ul>
+<li><a href="#2.1">2.1 UTF-8编码规则</a> </li>
+<li><a href="#2.2">2.2 Unicode转化为UTF-8的方法</a> </li>
+<li><a href="#2.3">2.3 其他</a> </li>
+</ul>
+</li>
+<li><a href="#3">三.参考资料</a> </li>
+</ul>
+<p></p><h2 id="1">一、Unicode</h2><p></p>
+<ul>
+<li><p>Unicode是一个字符集charset，它规定了符号的二进制代码，却没有规定这个二进制代码如何存储，理论上可以不断往上堆  </p>
+</li>
+<li><p>一个很大的集合，将世界上所有的符号都纳入其中，目前普遍采用的是UCS-2，就是采用两个字节来表示，经过UTF8转换后字节如下：</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Unicode(16进制)</th>
+<th>UTF-8(二进制)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0000 - 007F</td>
+<td>0xxxxxxx</td>
+</tr>
+<tr>
+<td>0080 - 07FF</td>
+<td>110xxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td>0800 - FFFF</td>
+<td>1110xxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>目有两套编码方法,<code>UCS-2(Unicode)</code>用2个字节表示一个字符,<code>UCS-4(Unicode-32)</code>用4个字节表示一个字符。UCS-4是由USC-2扩展来的,增加了2字节的高位。即使是老UCS-2,它也可以表示2^16=<code>65535</code>个字符,基本上可以容纳所有常用各国字符,所以目前<strong>基本都使用UCS-2</strong>。</p>
+</li>
+<li><p>每一个代码点对应一个字符，每个Unicode码点都是一个字符，“a”是一个字符，“王”也是一个字符，“😄”也是一个字符，因为目前采用UCS-2为主，所以一个字符占两个字节</p>
+</li>
+<li><p>Unicode包含一些基本的表情包emoji,对应编码表下载：<a href="http://www.unicode.org/charts/PDF/U2700.pdf" target="_blank" rel="external">http://www.unicode.org/charts/PDF/U2700.pdf</a>  </p>
+<center><br><img src="http://i.imgur.com/77Gix8U.jpg" alt=""><br></center></li>
+<li><p>目前有部分以USC-4规则存在的字符，例如汉字的范围是\U00020000 ~ \U0002B81D，未来还会不断扩大，它们都是些非常生僻的字例，如<a href="http://www.unicode.org/charts/PDF/U3400.pdf" target="_blank" rel="external">CJK Extend-B</a></p>
+</li>
+<li><p>Unicode字符集表:<a href="http://www.unicode.org/charts" target="_blank" rel="external">http://www.unicode.org/charts</a></p>
+</li>
+<li><p>Unicode中日韩统一表意文字（CJK Unified Ideographs）：包含中日韩文字，下载地址：<a href="http://www.unicode.org/charts/PDF/U4E00.pdf" target="_blank" rel="external">http://www.unicode.org/charts/PDF/U4E00.pdf</a></p>
+</li>
+<li><p><a href="http://www.qqxiuzi.cn/zh/hanzi-unicode-bianma.php" target="_blank" rel="external">Unicode中文基本范围</a></p>
+<center><br><img src="http://i.imgur.com/2rfxMCT.png" alt=""><br></center>
+
+</li>
+</ul>
+<p></p><h2 id="2">二、UTF-8</h2><p></p>
+<h4 id="2.1">2.1 UTF-8编码规则</h4>
+
+<blockquote>
+<ol>
+<li>如果一个字节，最高位（第 8 位）为 0，表示这是一个 ASCII 字符（00 7F）。可见，所有 ASCII 编码已经是 UTF-8 了。</li>
+<li>如果一个字节，以 11 开头，连续的 1 的个数暗示这个字符的字节数，例如：110xxxxx 代表它是双字节 UTF-8 字符的首字节。</li>
+<li>如果一个字节，以 10 开始，表示它不是首字节，需要向前查找才能得到当前字符的首字节</li>
+</ol>
+</blockquote>
+<p></p><h4 id="2.2">2.2 Unicode转化为UTF-8的方法</h4><br>|Unicode码范围|UTF-8编码(把Unicode码转为二进制填充x处)<br>|————|——————<br>|0000-007F   |0xxxxxxx<br>|0080-07FF   |110xxxxx 10xxxxxx<br>|0800-FFFF   |1110xxxx 10xxxxxx 10xxxxxx<p></p>
+<p></p><h4 id="2.3">2.3 其他</h4><p></p>
+<ul>
+<li><p>UTF-8是一种编码encoding方式，他根据Unicode的代码点进行编码</p>
+</li>
+<li><p>基本汉字的Unicode范围是4E00-9FA5，所以UTF-8编码后汉字基本以3个字节表示</p>
+</li>
+<li><p>UTF-8编码理论上可以最多到6个字节，但目前全世界<code>常用</code>的文字和符号加起来4个字节长就够了</p>
+</li>
+<li><p>如果UNICODE字符由2个字节表示，则编码成UTF-8很可能需要3个字节。而如果UNICODE字符由4个字节表示，则编码成UTF-8可能需要6个字节</p>
+</li>
+</ul>
+<hr>
+<p></p><h2 id="3">三、参考资料</h2><p></p>
+<ol>
+<li>Unicode官网以及代码点表：<a href="http://www.unicode.org/charts/" target="_blank" rel="external">http://www.unicode.org/charts/</a>  </li>
+<li>Unicode字符编码表：<a href="http://www.cnblogs.com/chenwenbiao/archive/2011/08/17/2142718.html" target="_blank" rel="external">http://www.cnblogs.com/chenwenbiao/archive/2011/08/17/2142718.html</a>  </li>
+<li>汉字Unicode编码范围：<a href="http://www.qqxiuzi.cn/zh/hanzi-unicode-bianma.php" target="_blank" rel="external">http://www.qqxiuzi.cn/zh/hanzi-unicode-bianma.php</a></li>
+</ol>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://www.windyyong.com/2016/08/28/字符编码：四、Unicode与UTF-8/" data-id="ciy9qygk6000i14ues8aai243" class="article-share-link">分享到</a><div class="tags"><a href="/tags/字符编码/">字符编码</a></div><div class="post-nav"><a href="/2016/08/28/字符编码：三、了解编码方式Encoding/" class="pre">字符编码：三、了解编码方式Encoding</a><a href="/2016/08/28/字符编码：TXT与编码/" class="next">字符编码：TXT与编码</a></div><div data-thread-key="2016/08/28/字符编码：四、Unicode与UTF-8/" data-title="字符编码：四、Unicode与UTF-8" data-url="http://www.windyyong.com/2016/08/28/字符编码：四、Unicode与UTF-8/" class="ds-share flat"><div class="ds-share-inline"><ul class="ds-share-icons-16"><li data-toggle="ds-share-icons-more"><a href="javascript:void(0);" class="ds-more">分享到：</a></li><li><a href="javascript:void(0);" data-service="weibo" class="ds-weibo">微博</a></li><li><a href="javascript:void(0);" data-service="qzone" class="ds-qzone">QQ空间</a></li><li><a href="javascript:void(0);" data-service="qqt" class="ds-qqt">腾讯微博</a></li><li><a href="javascript:void(0);" data-service="wechat" class="ds-wechat">微信</a></li></ul><div class="ds-share-icons-more"></div></div></div><div data-thread-key="2016/08/28/字符编码：四、Unicode与UTF-8/" data-title="字符编码：四、Unicode与UTF-8" data-url="http://www.windyyong.com/2016/08/28/字符编码：四、Unicode与UTF-8/" data-author-key="1" class="ds-thread"></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="search" name="word" maxlength="20" placeholder="Search"/><input type="hidden" name="si" value="http://www.windyyong.com"/><input name="tn" type="hidden" value="bds"/><input name="cl" type="hidden" value="3"/><input name="ct" type="hidden" value="2097152"/><input name="s" type="hidden" value="on"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Java基础/">Java基础</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java构建工具/">Java构建工具</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/字符编码/" style="font-size: 15px;">字符编码</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/Maven打包配置文件说明/">Maven打包配置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：一、Unicode与UTF-8的例子/">字符编码：一、Unicode与UTF-8的例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：二、认识字符集Charset/">字符编码：二、认识字符集Charset</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：三、了解编码方式Encoding/">字符编码：三、了解编码方式Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：四、Unicode与UTF-8/">字符编码：四、Unicode与UTF-8</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：TXT与编码/">字符编码：TXT与编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/28/字符编码：Unicode的历史/">字符编码：Unicode的历史</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/18/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.windyyong.com" title="windy" target="_blank">windy</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">© <a href="/." rel="nofollow">windy.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> </a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="/css/jquery.fancybox.css?v=0.0.0"><script>var duoshuoQuery = {short_name:'windyyong'};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
