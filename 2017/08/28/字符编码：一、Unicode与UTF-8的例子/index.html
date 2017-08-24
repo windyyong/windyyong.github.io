@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="windy"><title>字符编码：一、Unicode与UTF-8的例子 | windy</title><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/4.2.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">字符编码：一、Unicode与UTF-8的例子</h1><a id="logo" href="/.">windy</a><p class="description">love at first sight</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">字符编码：一、Unicode与UTF-8的例子</h1><div class="post-meta">Aug 28, 2017<span> | </span><span class="category"><a href="/categories/Java基础/">Java基础</a></span><script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><div class="post-content"><ul>
+<li><a href="#1">一.背景介绍</a> </li>
+<li><a href="#2">二.例子实践</a> </li>
+<li><a href="#3">三.题外话</a> </li>
+</ul>
+<p><img src="http://i.imgur.com/bog91FE.jpg" style="display:none"></p>
+<p></p><h2 id="1">一、背景简介</h2><br>最近在看许令波的《深入分析JavaWeb技术内幕》，其中第三章说的是中文编码问题，刚好利用周末时间，探讨一下有关我们常见的编码问题。  <p></p>
+<p>在参考了网上众多文章之后，自己做了一下总结。</p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="http://music.163.com/outchain/player?type=2&id=27759600&auto=0&height=66"></iframe>
+
+<p></p><h2 id="2">二、例子实践</h2><br>举一个例子：I am 钧泳<br>你看到的unicode字符集是这样的编码表(\u代表unicode字符):<p></p>
+<pre class="selfblock">I  \u0049   
+   \u0020  
+a  \u0061  
+m  \u006d  
+   \u0020  
+钧 \u94a7  
+泳 \u6cf3</pre>
+
+<p>每一个字符对应一个十六进制数字。</p>
+<p>计算机只懂二进制，因此，严格按照unicode的方式(UCS-2)，应该这样存储：</p>
+<pre class="selfblock">I  00000000 01001001
+   00000000 00100000  
+a  00000000 01100001
+m  00000000 01101101
+   00000000 00100000  
+钧 10010100 10100111
+泳 01101100 11110011  
+</pre>
+
+<p>这个字符串总共占用了14个字节，但是对比中英文的二进制码，可以发现，英文前9位都是0！浪费啊，浪费硬盘，浪费流量。</p>
+<p>怎么办？</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">UTF（UnicodeTransformationFormat）</div></pre></td></tr></table></figure>
+<p><strong>UTF8是这样做的：</strong></p>
+<ol>
+<li><p>单字节的字符，字节的第一位设为0，对于英语文本，UTF8只占用一个字节，和ASCII码完全相同；  </p>
+</li>
+<li><p>n个字节的字符（n&gt;1），第一个字节的前n位设为1，第n+1位设为0，后面字节的前两位设为10，这n个字节的其余空位填充改字符unicode码，高位用0补足。</p>
+</li>
+</ol>
+<p>这样就形成了如下的UTF8标记位：  </p>
+<blockquote>
+<p>0xxxxxxx<br>110xxxxx 10xxxxxx<br>1110xxxx 10xxxxxx 10xxxxxx<br>11110xxx 10xxxxxx 10xxxxxx 10xxxxxx<br>111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx<br>1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx  </p>
+</blockquote>
+<p>于是，”I am 钧泳”就变成了:  </p>
+<pre class="selfblock">I  01001001
+   00100000  
+a  01100001
+m  01101101
+   00100000  
+钧 11101001 10010010 10100111
+泳 11100110 10110011 10110011  
+</pre>
+
+<p>和上面的方案对比一下，英文短了，每个中文字符多用了一个字节。但是整个字符串只用了11个字节，比上面的14个少了3个。</p>
+<p></p><h2 id="3">三、题外话</h2><br>为什么UTF8会变得流行？<p></p>
+<blockquote>
+<p>互联网发达以后，数据的传输成了一个问题，为了减少网络传输量（数据在经过网络传输时都是以字节为单位），就要选择不同的算法。而在实际应用中，我们的传输尤以ASCII码内的字符的传输为多，他们在UTF8中都采用单字节存储，相比起其他采用双字节的编码方法，UTF8大大地为我们节约了网络的传输量。</p>
+</blockquote>
+<p>目的：一切都是为了节省你的硬盘和流量。</p>
+<p>大家可以尝试一下把查出自己名字的Unicode二进制代码点，然后根据UTF-8的规则进行转换。</p>
+<p></p><h2 id="4">四、参考资料</h2><p></p>
+<ol>
+<li>Unicode和UTF-8有何区别:<a href="https://www.zhihu.com/question/23374078" target="_blank" rel="external">https://www.zhihu.com/question/23374078</a>  </li>
+</ol>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://www.windyyong.com/2017/08/28/字符编码：一、Unicode与UTF-8的例子/" data-id="cj6qlmnb6000enoc453m7lgop" class="article-share-link">分享到</a><div class="tags"><a href="/tags/字符编码/">字符编码</a></div><div class="post-nav"><a href="/2017/12/25/Maven打包配置文件说明/" class="pre">Maven打包配置说明</a><a href="/2017/08/28/字符编码：二、认识字符集Charset/" class="next">字符编码：二、认识字符集Charset</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="search" name="word" maxlength="20" placeholder="Search"/><input type="hidden" name="si" value="http://www.windyyong.com"/><input name="tn" type="hidden" value="bds"/><input name="cl" type="hidden" value="3"/><input name="ct" type="hidden" value="2097152"/><input name="s" type="hidden" value="on"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Java基础/">Java基础</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java构建工具/">Java构建工具</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/生活/">生活</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/字符编码/" style="font-size: 15px;">字符编码</a> <a href="/tags/生活/" style="font-size: 15px;">生活</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/12/25/Maven打包配置文件说明/">Maven打包配置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：一、Unicode与UTF-8的例子/">字符编码：一、Unicode与UTF-8的例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：二、认识字符集Charset/">字符编码：二、认识字符集Charset</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：三、了解编码方式Encoding/">字符编码：三、了解编码方式Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：四、Unicode与UTF-8/">字符编码：四、Unicode与UTF-8</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：TXT与编码/">字符编码：TXT与编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：Unicode的历史/">字符编码：Unicode的历史</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/14/20170414柚柚/">柚柚</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/18/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.windyyong.com" title="windy" target="_blank">windy</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">© <a href="/." rel="nofollow">windy.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> </a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="/css/jquery.fancybox.css?v=0.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
