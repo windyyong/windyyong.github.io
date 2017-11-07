@@ -38,21 +38,78 @@
 
     <link href="http://huyuqian.chengdazhi.com/images/icon.png" rel="icon" type="image/x-icon">
 
+    <style type="text/css">
+        .app-header {
+            position: fixed;
+            top: 0;
+            width: 640px;
+            z-index: 100
+        }
+
+        .u-globalAudio {
+            color: #fff;
+            text-decoration: none;
+            font-size: 24px;
+            position: fixed;
+            left: 50%;
+            margin-left: 248px;
+            bottom: 28px;
+            display: block;
+            z-index: 9999
+        }
+
+        .u-globalAudio span {
+            position: absolute;
+            left: -60px;
+            top: 10px;
+            text-shadow: 1px 1px 1px #000;
+            letter-spacing: 2px;
+            -webkit-transition: all .2s linear;
+            opacity: 0;
+            -webkit-transform: translateX(-20px)
+        }
+
+        .u-globalAudio .icon-music {
+            width: 54px;
+            height: 54px;
+            background: url(../images/units-icons.png);
+            display: block
+        }
+
+        .u-globalAudio.z-play .icon-music {
+            -webkit-animation: reverseRotataZ 1.2s linear infinite
+        }
+
+        .u-globalAudio span.z-show {
+            opacity: 1;
+            -webkit-transform: translateX(0px)
+        }
+
+        .u-globalAudio .coffee-steam-box {
+            -webkit-transform: translate(-40px, -40px)
+        }
+    </style>
 </head>
 <body>
 <div class="wrap-body">
     <!--Header-->
-    <header>
-        <div class="wrap-header">
-            <div class="zerogrid">
-                <div id="logo">
-                    <img src="./1108/logo_photo.jpg" style="width:300px;margin-bottom:40px;">
-                    <h3 style="color:#57A8C1;margin-bottom:10px;">欢迎来到小仙女媛媛的小站</h3>
-                    <p>噢噢噢噢噢噢噢噢噢，噔噔噔噔噔噔噔蹬蹬，小仙女变身之路，祝生日快乐</p>
-                </div>
-            </div>
-        </div>
+    <!--<header>-->
+    <!--<div class="wrap-header">-->
+    <!--<div class="zerogrid">-->
+    <!--<div id="logo">-->
+    <!--<img src="./1108/logo_photo.jpg" style="width:300px;margin-bottom:40px;">-->
+    <!--<h3 style="color:#57A8C1;margin-bottom:10px;">欢迎来到小仙女媛媛的小站</h3>-->
+    <!--<p>噢噢噢噢噢噢噢噢噢，噔噔噔噔噔噔噔蹬蹬，小仙女变身之路，祝生日快乐</p>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--</header>-->
+    <header class="app-header">
+        <a href="javascript:void(0);" class="u-globalAudio">
+            <audio src="swf/BicycleTricycle.mp3" autoplay="autoplay" loop="loop"></audio>
+        </a>
     </header>
+
     <!--Content-->
     <section class="container">
         <div class="zerogrid">
