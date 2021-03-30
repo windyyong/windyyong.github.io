@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="windy"><title> | windy</title><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/4.2.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">windy</h1><a id="logo" href="/.">windy</a><p class="description">love at first sight</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title"></h1><div class="post-meta">Jan 23, 2017<script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><div class="post-content"><pre><code>&lt;script type=&quot;text/javascript&quot; src=&quot;http://www.websequencediagrams.com/service.js&quot;&gt;&lt;/script&gt;
+</code></pre><p>nihao<br><a href="https://blog.csdn.net/u014651643/article/details/51884233" target="_blank" rel="external">https://blog.csdn.net/u014651643/article/details/51884233</a></p>
+<p>Java代理大纲<br>代理介绍:场景应用、动静态、关键词、优劣势、反射<br>代理前言<br>静态代理:人工方式、aspectj<br>静态代理深入:aspectj代码的class字节码<br>动态代理:使用场景(框架)、原理(反射)、jdk动态代理、cglib代理<br>Jdk动态代理源码<br>Cglib动态代理深入</p>
+<p>场景:<br>小明是个土豪.近二十年通过不断买房卖房,积累资产,现已手握上百套房产,遍布中国各地,上至北京上海,下至广州深圳.(业务代码逐渐发展,由少变多)<br>只有一套房的时候,小明都是自己放租收租.(单流程业务)<br>随着房产逐渐增多,小明觉得小明就近房源附近,寻找了不同的多个中介管理(代理),收取了小明对应的中介费(代理带来的效率问题).</p>
+<p></p><h2 id="1">场景应用:</h2>  <p></p>
+<ol>
+<li>早期,订单系统维护着一千多个方法,例如购物车、收藏、下单、付款、清空购物车等,方法之间关联不大;</li>
+<li>有一天,项目经理决定要在订单系统的一千多个方法前后打印日志</li>
+<li>程序员小明咬咬牙,新增了日志输出方法,然后所有方法都加上该代码</li>
+<li>过了一段时间,项目经理又要求对所有接口限流处理,还要进行用户合法性校验</li>
+<li>需求如此迭代,逐个方法添加代码,岂不累坏?小明再咬咬牙,灵光一闪,掏出了从JDK1.3沿用至今的神器:代理(java.lang.reflect.Proxy)</li>
+</ol>
+<h5 id="关键词"><a href="#关键词" class="headerlink" title="关键词:"></a>关键词:</h5><ul>
+<li>代理(Proxy):为某个对象提供一个代理，以控制对这个对象的访问。在不修改源代码的基础上做方法增强,代理是一种设计模式。(引自Design patterns In java)</li>
+<li>静态代理:代理类和委托类在代码运行前就确定了关系,多指class文件</li>
+<li>动态代理:动态代理类的字节码在程序运行时的时候生成</li>
+</ul>
+<p></p><h2 id="1">一、代理</h2><br>代理是一种软件设计模式,目的是希望做到代码重用.具体上讲，代理是通过不直接访问被代理对象的方式，而访问被代理对象的方法。<p></p>
+<p>刀耕火种时代,代码和业务混杂,耦合度高,</p>
+<pre class="selfblock">try{
+con.setAutoCommit(false);//开启事务
+....方法的业务代码
+con.commit();//try的最后提交事务      
+} catch（） {
+con.rollback();//回滚事务
+}
+</pre>
+
+<p>代理则抽取共同的代码,由代理类去处理公用逻辑.<br>代理类似于房地产中介,统一管理房屋出租,并对出租房屋收取中介费(房屋出租的额外操作),房东类似于被代理对象.对租客而言,中介就是房东,完成了出租房屋的事情.</p>
+<p></p><h2 id="2">二、静态代理</h2><br>回到之前的需求,项目需要在所有方法前后开启、关闭事务,<p></p>
+<p>在不修改已有代码的前提下,如何完成该需求?</p>
+<p>静态代理流程:</p>
+<ol>
+<li>为现有每一个类都编写一个对应的代理类，并且让它实现和目标类相同的接口  </li>
+</ol>
+<p><img src="http://yuml.me/windy/diagram/class/[interface C]^-.-[class CProxy], [interface C]^-.-[class CImpl], [interface B]^-.-[class BProxy], [interface B]^-.-[class BImpl], [interface A]^-.-[class AProxy], [interface A]^-.-[class AImpl]"></p>
+<p><img src="http://pic1.zhimg.com/80/v2-001c5db900d8785d47c1a5a0c6f32762_hd.jpg" alt="测试"></p>
+<ol>
+<li>在创建代理对象时，通过构造器塞入一个目标对象，然后在代理对象的方法内部调用目标对象同名方法，并在调用前后打印日志。也就是说，代理对象 = 增强代码 + 目标对象（原对象）。有了代理对象后，就不用原对象了<p></p></li>
+</ol>
+<p><img src="http://pic1.zhimg.com/80/v2-e302487f952bdf8e284afc0d8d6a770b_hd.jpg" alt="image"></p>
+<p>,由于我们需要事先实现代理类,那么每个方法我都都需要去实现。如果我们要实现很多的代理类,那么工作量就太大了。动态代理的产生就是这样而来的。</p>
+<p>由程序员创建或工具生成代理类的源码，再编译代理类。所谓静态也就是在程序运行前就已经存在代理类的字节码文件，代理类和委托类的关系在运行前就确定了。</p>
+<p>代码:</p>
+<figure class="highlight axapta"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//代理接口，处理日志</span></div><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">ILog</span> </span>&#123;</div><div class="line">    <span class="keyword">void</span> <span class="keyword">order</span>();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//委托类，订单服务，处理具体业务</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Order</span> <span class="keyword">implements</span> <span class="title">ILog</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> Order() &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="keyword">order</span>() &#123;</div><div class="line">        System.out.println(<span class="string">"用户下单中....."</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//代理类，实现代理接口</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">OrderAgent</span> <span class="keyword">implements</span> <span class="title">ILog</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> ILog <span class="keyword">order</span>;</div><div class="line">    <span class="keyword">public</span> OrderAgent(Order <span class="keyword">order</span>) &#123;</div><div class="line">        <span class="keyword">this</span>.<span class="keyword">order</span> = <span class="keyword">order</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="keyword">order</span>() &#123;</div><div class="line">        System.out.println(<span class="string">"业务初始日志"</span>);</div><div class="line">        <span class="keyword">order</span>.<span class="keyword">order</span>();<span class="comment">//下单</span></div><div class="line">        System.out.println(<span class="string">"业务结束日志"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderProxy</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(String[] args) &#123;</div><div class="line">        Order <span class="keyword">order</span> = <span class="keyword">new</span> Order();</div><div class="line">        OrderAgent agent = <span class="keyword">new</span> OrderAgent(<span class="keyword">order</span>);</div><div class="line">        agent.<span class="keyword">order</span>();<span class="comment">//有代理类执行代码</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出结果:</p>
+<blockquote>
+<p>业务初始日志<br>用户下单中…..<br>业务结束日志  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">title: 三个臭皮匠的故事</div><div class="line">participant 小王</div><div class="line">participant 小李</div><div class="line">participant 小异常</div><div class="line"></div><div class="line">note left of 小王: 我是小王</div><div class="line">note over 小李: 我是小李</div><div class="line">note right of 小异常: 大家好！\n我是小异常</div><div class="line"></div><div class="line">小王-&gt;小王: 小王想：今天要去见两个好朋友咯~</div><div class="line">小王-&gt;小李: 嘿，小李好久不见啊~ </div><div class="line">小李--&gt;&gt;小王: 是啊</div><div class="line">小李-&gt;小异常: 小异常，你好啊</div><div class="line">小异常--&gt;小王: 哈，小王！\n最近身体怎么样了？</div><div class="line">小王-&gt;&gt;小异常: 还可以吧</div></pre></td></tr></table></figure>
+<div id="flowchart-0" class="flow-chart"></div>
+
+<p>作者：凹凸曼达人<br>链接：<a href="https://www.jianshu.com/p/a51643623227" target="_blank" rel="external">https://www.jianshu.com/p/a51643623227</a><br>来源：简书<br>简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">graph TB</div><div class="line">A<span class="comment">--&gt;B</span></div></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>姓名</th>
+<th style="text-align:center">技能</th>
+<th style="text-align:right">排行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>刘备</td>
+<td style="text-align:center">哭</td>
+<td style="text-align:right">大哥</td>
+</tr>
+<tr>
+<td>关羽</td>
+<td style="text-align:center">打</td>
+<td style="text-align:right">二哥</td>
+</tr>
+<tr>
+<td>张飞</td>
+<td style="text-align:center">骂</td>
+<td style="text-align:right">三弟</td>
+</tr>
+</tbody>
+</table>
+<div id="flowchart-1" class="flow-chart"></div>
+
+<p>…flow<br>st=&gt;start: Start|past:&gt;<a href="http://www.google.com[blank" target="_blank" rel="external">http://www.google.com[blank</a>]<br>e=&gt;end: End:&gt;<a href="http://www.google.com" target="_blank" rel="external">http://www.google.com</a><br>op1=&gt;operation: My Operation|past<br>op2=&gt;operation: Stuff|current<br>sub1=&gt;subroutine: My Subroutine|invalid<br>cond=&gt;condition: Yes<br>or No?|approved:&gt;<a href="http://www.google.com" target="_blank" rel="external">http://www.google.com</a><br>c2=&gt;condition: Good idea|rejected<br>io=&gt;inputoutput: catch something…|request<br>st-&gt;op1(right)-&gt;cond<br>cond(yes, right)-&gt;c2<br>cond(no)-&gt;sub1(left)-&gt;op1<br>c2(yes)-&gt;io-&gt;e<br>c2(no)-&gt;op2-&gt;e<br>…<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.6.5/flowchart.min.js"></script><textarea id="flowchart-0-code" style="display: none">st=start:Start
+i=inputoutput:输入年份n
+cond1=condition:n能否被4整除？
+cond2=condition:n能否被100整除？
+cond3=condition:n能否被400整除？
+o1=inputoutput:输出非闰年
+o2=inputoutput:输出非闰年
+o3=inputoutput:输出闰年
+o4=inputoutput:输出闰年
+e=end
+
+st-i-cond1
+cond1(no)-o1-e
+cond1(yes)-cond2
+cond2(no)-o3-e
+cond2(yes)-cond3
+cond3(yes)-o2-e
+cond3(no)-o4-e</textarea><textarea id="flowchart-0-options" style="display: none">{"scale":1,"line-width":2,"line-length":50,"text-margin":10,"font-size":12}</textarea><script>  var code = document.getElementById("flowchart-0-code").value;  var options = JSON.parse(decodeURIComponent(document.getElementById("flowchart-0-options").value));  var diagram = flowchart.parse(code);  diagram.drawSVG("flowchart-0", options);</script><textarea id="flowchart-1-code" style="display: none">st=>start: Start|past:>http://www.google.com[blank]
+e=>end: End:>http://www.google.com
+op1=>operation: My Operation|past
+op2=>operation: Stuff|current
+sub1=>subroutine: My Subroutine|invalid
+cond=>condition: Yes
+or No?|approved:>http://www.google.com
+c2=>condition: Good idea|rejected
+io=>inputoutput: catch something...|request
+st->op1(right)->cond
+cond(yes, right)->c2
+cond(no)->sub1(left)->op1
+c2(yes)->io->e
+c2(no)->op2->e</textarea><textarea id="flowchart-1-options" style="display: none">{"scale":1,"line-width":2,"line-length":50,"text-margin":10,"font-size":12}</textarea><script>  var code = document.getElementById("flowchart-1-code").value;  var options = JSON.parse(decodeURIComponent(document.getElementById("flowchart-1-options").value));  var diagram = flowchart.parse(code);  diagram.drawSVG("flowchart-1", options);</script></p>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://www.windyyong.com/2017/01/23/Maven打包配置文件说明的副本/" data-id="cjwszfh3100008jurcvzvdtrw" class="article-share-link">分享到</a><div class="tags"></div><div class="post-nav"><a href="/2017/08/28/字符编码：Unicode的历史/" class="pre">字符编码：Unicode的历史</a><a href="/2016/08/18/hello-world/" class="next">Hello World</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="search" name="word" maxlength="20" placeholder="Search"/><input type="hidden" name="si" value="http://www.windyyong.com"/><input name="tn" type="hidden" value="bds"/><input name="cl" type="hidden" value="3"/><input name="ct" type="hidden" value="2097152"/><input name="s" type="hidden" value="on"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Java基础/">Java基础</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java基础2/">Java基础2</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Java基础2/Java动态代理/">Java动态代理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java构建工具/">Java构建工具</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/字符编码/" style="font-size: 15px;">字符编码</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/12/25/Maven打包配置文件说明/">Maven打包配置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：一、Unicode与UTF-8的例子/">字符编码：一、Unicode与UTF-8的例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：二、认识字符集Charset/">字符编码：二、认识字符集Charset</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：三、了解编码方式Encoding/">字符编码：三、了解编码方式Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：四、Unicode与UTF-8/">字符编码：四、Unicode与UTF-8</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：TXT与编码/">字符编码：TXT与编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/字符编码：Unicode的历史/">字符编码：Unicode的历史</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/Maven打包配置文件说明的副本/">Maven打包配置文件说明的副本</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/18/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.windyyong.com" title="windy" target="_blank">windy</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">© <a href="/." rel="nofollow">windy.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> </a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="/css/jquery.fancybox.css?v=0.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
